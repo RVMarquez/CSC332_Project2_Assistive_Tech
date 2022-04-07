@@ -1,0 +1,99 @@
+/*
+CSC 332-A Project 2 Assistive Tech
+Rafa Marquez and Yunah Kim
+April 7, 2022
+*/
+//#include <ezButton.h>
+//#define SWITCH_OFF 0
+//#define SWITCH_ON  1
+
+// Define pins for ultrasonic and buzzer
+int const trigPin = 10;
+int const echoPin = 9;
+//int const buzzPin = 2;
+int const vibrate = 3;
+
+//ezButton button(7); // create ezButton object that attach to pin 7;
+//int switch_state = SWITCH_OFF; // initial state
+
+// Generally, you should use "unsigned long" for variables that hold time
+// The value will quickly become too large for an int to store
+unsigned long previousMillis = 0; // will store last time LED was updated
+
+// constants won't change:
+const long interval = 100; // interval at which to blink (milliseconds)
+
+void setup(){
+  pinMode(trigPin, OUTPUT); // trig pin will have pulses output
+  pinMode(echoPin, INPUT); // echo pin should be input to get pulse width
+  //pinMode(buzzPin, OUTPUT); // buzz pin is output to control buzzering
+  pinMode(vibrate, OUTPUT); // vibrates the mini motor
+  
+  Serial.begin(9600);
+  //button.setDebounceTime(50); // set debounce time to 50 milliseconds
+}
+
+void loop(){
+  /*
+  button.loop(); // MUST call the loop() function first
+
+  if (button.isPressed()) {
+    // change state of switch
+    if (switch_state == SWITCH_OFF)
+       switch_state = SWITCH_ON;
+    else
+       switch_state = SWITCH_OFF;
+        
+      Serial.print("switch's state -> ");
+      Serial.println(switch_state);
+  }
+  */
+  
+  //Serial.print("switch's state: ");
+  //Serial.println(switch_state);
+  //if (switch_state == SWITCH_ON) {
+
+    //Millis() to check if enough time has passed
+    unsigned long currentMillis = millis();
+
+    if (currentMillis - previousMillis >= interval) {
+      // save the last time you blinked the LED
+      previousMillis = currentMillis;
+      
+      // Duration will be the input pulse width and distance will be the distance to the obstacle in centimeters
+      int duration, distance;
+      
+      // Output pulse with 1ms width on trigPin
+      digitalWrite(trigPin, HIGH);
+      delay(1);
+      digitalWrite(trigPin, LOW);
+      
+      // Measure the pulse input in echo pin
+      duration = pulseIn(echoPin, HIGH);
+      
+      // Distance is half the duration devided by 29.1 (from datasheet)
+      distance = (duration/2) / 29.1;
+      
+      // if distance less than 0.5 meter and more than 0 (0 or less means over range)
+      if (distance <= 99 && distance >= 1) {
+        //Vibrate the Most
+        //digitalWrite(buzzPin, HIGH);
+        analogWrite(vibrate, 255);
+      } 
+      else if (distance <= 199 && distance >= 100){
+        //Meduium Vibration
+        analogWrite(vibrate, 180);
+      }
+      else if (distance <= 299 && distance >= 200){
+        //Lowest Vibration
+        analogWrite(vibrate, 100);
+      }
+      else {
+        //Do Not Vibrate
+        //digitalWrite(buzzPin, LOW);
+        analogWrite(vibrate, 0);
+      }
+    }
+  
+  //}
+}
